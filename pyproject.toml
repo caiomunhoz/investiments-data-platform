@@ -5,7 +5,7 @@ description = "Add your description here"
 requires-python = ">=3.12"
 dependencies = [
     "cryptography>=50.0.1",
-    "dlt>=1.30.0",
+    "dlt[filesystem]>=1.30.0",
     "pendulum>=3.2.0",
 ]
 
