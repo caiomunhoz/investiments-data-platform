@@ -1,0 +1,67 @@
+name: Build and Push Lambda Image
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "src/jobs/lambda/**"
+      - "src/etl/ingestion/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/build-push-lambda-image.yaml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - path: ingest_binance_trades
+            name: ingest-binance-trades
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5.1.1
+        with:
+          role-to-assume: ${{ secrets.AWS_GITHUB_ACTIONS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Extract image metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.ecr-login.outputs.registry }}/investiments-data-platform/lambda-${{ matrix.name }}
+          tags: |
+            type=sha
+            type=raw,value=latest
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: src/jobs/lambda/Dockerfile
+          build-args: |
+            LAMBDA_FUNCTION_DIR=src/jobs/lambda/${{ matrix.path }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=lambda-${{ matrix.name }}
+          cache-to: type=gha,mode=max,scope=lambda-${{ matrix.name }}
