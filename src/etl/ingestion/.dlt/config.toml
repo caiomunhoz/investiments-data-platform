@@ -4,5 +4,12 @@ bucket_url = "s3://investiments-lakehouse"
 [normalize.data_writer]
 disable_compression = true
 
+[providers]
+enable_aws_secrets = true
+
+[providers.aws_secrets]
+list_secrets = true
+secret_name_prefix = "investiments-data-platform/"
+
 [runtime]
 dlthub_telemetry = false
