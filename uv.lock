@@ -8,6 +8,13 @@ resolution-markers = [
     "(python_full_version < '3.14' and platform_python_implementation == 'PyPy') or (python_full_version < '3.14' and sys_platform == 'emscripten')",
 ]
 
+[manifest]
+members = [
+    "ingestion",
+    "investiments-data-platform",
+    "lambda",
+]
+
 [[package]]
 name = "aiobotocore"
 version = "3.9.1"
@@ -657,18 +664,13 @@ wheels = [
 ]
 
 [[package]]
-name = "investiments-data-platform"
+name = "ingestion"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "src/etl/ingestion" }
 dependencies = [
     { name = "cryptography" },
     { name = "dlt", extra = ["filesystem"] },
     { name = "pendulum" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "ruff" },
 ]
 
 [package.metadata]
@@ -677,6 +679,18 @@ requires-dist = [
     { name = "dlt", extras = ["filesystem"], specifier = ">=1.30.0" },
     { name = "pendulum", specifier = ">=3.2.0" },
 ]
+
+[[package]]
+name = "investiments-data-platform"
+version = "0.1.0"
+source = { virtual = "." }
+
+[package.dev-dependencies]
+dev = [
+    { name = "ruff" },
+]
+
+[package.metadata]
 
 [package.metadata.requires-dev]
 dev = [{ name = "ruff", specifier = ">=0.16.7" }]
@@ -698,6 +712,17 @@ sdist = { url = "https://files.pythonhosted.org/packages/32/58/250751940d75c8019
 wheels = [
     { url = "https://files.pythonhosted.org/packages/03/99/33c7d78a3fb70d545fd5411ac67a651c81602cc09c9cf0df383733f068c5/jsonpath_ng-1.8.0-py3-none-any.whl", hash = "sha256:b8dde192f8af58d646fc031fac9c99fe4d00326afc4148f1f043c601a8cfe138", size = 67844, upload-time = "2026-02-28T00:53:19.637Z" },
 ]
+
+[[package]]
+name = "lambda"
+version = "0.1.0"
+source = { virtual = "src/jobs/lambda" }
+dependencies = [
+    { name = "ingestion" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "ingestion", editable = "src/etl/ingestion" }]
 
 [[package]]
 name = "markdown-it-py"

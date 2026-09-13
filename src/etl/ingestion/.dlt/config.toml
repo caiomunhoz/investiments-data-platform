@@ -1,0 +1,8 @@
+[destination.filesystem]
+bucket_url = "s3://investiments-lakehouse"
+
+[normalize.data_writer]
+disable_compression = true
+
+[runtime]
+dlthub_telemetry = false

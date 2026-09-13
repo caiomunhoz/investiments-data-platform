@@ -2,7 +2,7 @@ import pendulum
 import dlt
 from dlt.sources.rest_api import RESTAPIConfig, rest_api_resources
 
-from auth import BinanceAuth
+from .auth import BinanceAuth
 
 
 @dlt.source
@@ -44,7 +44,7 @@ def binance_source(
     yield from rest_api_resources(config)
 
 
-def run_pipeline(symbols: list[str]) -> None:
+def run(symbols: list[str]) -> None:
     pipeline = dlt.pipeline(
         pipeline_name="binance_pipeline",
         destination="filesystem",
