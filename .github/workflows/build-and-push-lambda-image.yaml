@@ -9,7 +9,7 @@ on:
       - "src/etl/ingestion/**"
       - "pyproject.toml"
       - "uv.lock"
-      - ".github/workflows/build-push-lambda-image.yaml"
+      - ".github/workflows/build-and-push-lambda-image.yaml"
   workflow_dispatch:
 
 permissions:
@@ -35,7 +35,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v5.1.1
+        uses: aws-actions/configure-aws-credentials@v6.2.4
         with:
           role-to-assume: ${{ secrets.AWS_GITHUB_ACTIONS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
