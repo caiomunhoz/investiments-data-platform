@@ -1,8 +1,8 @@
-from ingestion.binance import pipeline
+from pipelines.binance.pipeline import run_pipeline
 
 
 def lambda_handler(event, context):
-    pipeline.run(
+    run_pipeline(
         symbols=[
             "BTCBRL",
             "ETHBRL",

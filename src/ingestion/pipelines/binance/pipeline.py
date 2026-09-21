@@ -44,7 +44,7 @@ def binance_source(
     yield from rest_api_resources(config)
 
 
-def run(symbols: list[str]) -> None:
+def run_pipeline(symbols: list[str]) -> None:
     pipeline = dlt.pipeline(
         pipeline_name="binance_pipeline",
         destination="filesystem",

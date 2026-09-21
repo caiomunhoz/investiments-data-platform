@@ -5,8 +5,7 @@ on:
     branches:
       - main
     paths:
-      - "src/jobs/lambda/**"
-      - "src/etl/ingestion/**"
+      - "src/ingestion/**"
       - "pyproject.toml"
       - "uv.lock"
       - ".github/workflows/build-and-push-lambda-image.yaml"
@@ -17,7 +16,7 @@ permissions:
   id-token: write
 
 env:
-  AWS_REGION: us-east-1
+  AWS_REGION: ca-central-1
 
 jobs:
   build-and-push:
@@ -57,9 +56,9 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: src/jobs/lambda/Dockerfile
+          file: src/ingestion/lambda/Dockerfile
           build-args: |
-            LAMBDA_FUNCTION_DIR=src/jobs/lambda/${{ matrix.path }}
+            LAMBDA_FUNCTION_DIR=src/ingestion/lambda/${{ matrix.path }}
           provenance: false
           sbom: false 
           push: true
