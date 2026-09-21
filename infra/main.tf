@@ -1,5 +1,5 @@
 terraform {
-    required_version = ">= 1.15.8"
+  required_version = ">= 1.15.8"
 
   required_providers {
     aws = {
@@ -10,18 +10,19 @@ terraform {
 
   backend "s3" {
     bucket = "investiments-data-platform-tf-backend"
-    key = "terraform.tfstate"
-    region="us-east-1"
+    key    = "terraform.tfstate"
+    region = "ca-central-1"
   }
 }
 
 provider "aws" {
-  region = "us-east-1"
+  region  = "ca-central-1"
+  profile = "default"
 
   default_tags {
     tags = {
       "managed-by" = "terraform"
-      "project" = "investiments-data-platform"
+      "project"    = "investiments-data-platform"
     }
   }
 }
