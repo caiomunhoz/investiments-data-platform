@@ -1,10 +1,10 @@
-from urllib.parse import urlsplit, parse_qsl, urlencode, urlunsplit
 from base64 import b64encode
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
-
+import pendulum
+from cryptography.hazmat.primitives import serialization
 from dlt.common.configuration import configspec
 from dlt.sources.helpers.rest_client.auth import AuthConfigBase
-from cryptography.hazmat.primitives import serialization
 
 
 @configspec
@@ -18,10 +18,15 @@ class BinanceAuth(AuthConfigBase):
     def __call__(self, request):
         url = urlsplit(request.url)
 
-        query = urlencode(sorted(parse_qsl(url.query)))
+        sorted_query = urlencode(
+            sorted(
+                parse_qsl(url.query)
+                + [("timestamp", pendulum.now("UTC").int_timestamp * 1000)]
+            )
+        )
 
         request.url = urlunsplit(
-            url._replace(query=f"{query}&signature={self._sign(query)}")
+            url._replace(query=f"{sorted_query}&signature={self._sign(sorted_query)}")
         )
         request.headers["X-MBX-APIKEY"] = self.api_key
 

@@ -1,11 +1,10 @@
-import pendulum
 import dlt
 from dlt.sources.rest_api import RESTAPIConfig, rest_api_resources
 
 from .auth import BinanceAuth
 
 
-@dlt.source
+@dlt.source(name="binance")
 def binance_source(
     symbols: list[str],
     api_key: str = dlt.secrets.value,
@@ -29,7 +28,6 @@ def binance_source(
                         "symbol": symbol,
                         "fromId": "{incremental.start_value}",
                         "limit": 1000,
-                        "timestamp": pendulum.now("UTC").int_timestamp * 1000,
                     },
                     "incremental": {
                         "cursor_path": "id",
