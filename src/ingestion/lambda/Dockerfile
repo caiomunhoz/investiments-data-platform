@@ -29,6 +29,6 @@ ARG LAMBDA_FUNCTION_DIR
 
 COPY --from=builder ${LAMBDA_TASK_ROOT} ${LAMBDA_TASK_ROOT}
 COPY ./${LAMBDA_FUNCTION_DIR}/lambda_function.py ${LAMBDA_TASK_ROOT}/lambda_function.py
-COPY ./src/ingestion/pipelines/.dlt/config.toml ${LAMBDA_TASK_ROOT}/.dlt/config.toml
+COPY ./src/ingestion/pipelines/.dlt ${LAMBDA_TASK_ROOT}/.dlt
 
 CMD ["lambda_function.lambda_handler"]
