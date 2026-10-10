@@ -1,10 +1,10 @@
-data "aws_iam_policy_document" "github_actions_oidc" {
+data "aws_iam_policy_document" "gh_actions_oidc_assume_role_policy" {
   statement {
     actions = ["sts:AssumeRoleWithWebIdentity"]
 
     principals {
       type        = "Federated"
-      identifiers = [aws_iam_openid_connect_provider.github_provider.arn]
+      identifiers = [aws_iam_openid_connect_provider.github_openid_provider.arn]
     }
 
     condition {
@@ -21,7 +21,7 @@ data "aws_iam_policy_document" "github_actions_oidc" {
   }
 }
 
-data "aws_iam_policy_document" "github_actions_ecr_push" {
+data "aws_iam_policy_document" "ecr_push_policy" {
   statement {
     effect = "Allow"
     actions = [
@@ -36,22 +36,37 @@ data "aws_iam_policy_document" "github_actions_ecr_push" {
   }
 }
 
-resource "aws_iam_openid_connect_provider" "github_provider" {
+data "aws_iam_policy_document" "terraform_ci_policy" { # TODO: Restrict actions and resources for Terraform CI role
+  statement {
+    effect = "Allow"
+    actions = ["*"]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_openid_connect_provider" "github_openid_provider" {
   url            = "https://token.actions.githubusercontent.com"
   client_id_list = ["sts.amazonaws.com"]
 }
 
-resource "aws_iam_role" "ecr_push" {
-  name               = "investiments-data-platform-github-actions-ecr-push"
-  assume_role_policy = data.aws_iam_policy_document.github_actions_oidc.json
+resource "aws_iam_role" "ecr_push_role" {
+  name               = "InvestmentsDataPlatformECRPushRole"
+  assume_role_policy = data.aws_iam_policy_document.gh_actions_oidc_assume_role_policy.json
 }
 
-resource "aws_iam_role_policy" "github_actions_ecr_push" {
-  role   = aws_iam_role.ecr_push.id
-  policy = data.aws_iam_policy_document.github_actions_ecr_push.json
+resource "aws_iam_role_policy" "ecr_push_role_policy" {
+  name   = "InvestmentsDataPlatformECRPushPolicy"
+  role   = aws_iam_role.ecr_push_role.id
+  policy = data.aws_iam_policy_document.ecr_push_policy.json
 }
 
 resource "aws_iam_role" "terraform_ci" {
-  name               = "investiments-data-platform-github-actions-terraform-ci"
-  assume_role_policy = data.aws_iam_policy_document.github_actions_oidc.json
+  name               = "InvestmentsDataPlatformTerraformCIRole"
+  assume_role_policy = data.aws_iam_policy_document.gh_actions_oidc_assume_role_policy.json
+}
+
+resource "aws_iam_role_policy" "terraform_ci_role_policy" {
+  name   = "InvestmentsDataPlatformTerraformCIPolicy"
+  role   = aws_iam_role.terraform_ci.id
+  policy = data.aws_iam_policy_document.terraform_ci_policy.json
 }
