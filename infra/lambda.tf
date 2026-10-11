@@ -61,7 +61,7 @@ resource "aws_lambda_function" "ingest_binance_trades_function" {
   function_name = "investments-data-platform-ingest-binance-trades"
   package_type  = "Image"
   timeout       = 60
-  image_uri     = "${aws_ecr_repository.lambda_ingest_binance_trades.repository_url}:${var.ingest_binance_trades_image_tag}"
+  image_uri     = "${aws_ecr_repository.lambda_ingest_binance_trades.repository_url}@${data.aws_ecr_image.ingest_binance_trades.image_digest}"
   role          = aws_iam_role.lambda_ingestion_role.arn
   publish       = true
 }

@@ -1,3 +1,8 @@
+data "aws_ecr_image" "ingest_binance_trades" {
+  repository_name = aws_ecr_repository.lambda_ingest_binance_trades.name
+  most_recent     = true
+}
+
 resource "aws_ecr_repository" "lambda_ingest_binance_trades" {
   name                 = "investments-data-platform/lambda-ingest-binance-trades"
   image_tag_mutability = "IMMUTABLE_WITH_EXCLUSION"

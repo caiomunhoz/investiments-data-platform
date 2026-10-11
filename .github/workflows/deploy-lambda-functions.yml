@@ -17,6 +17,8 @@ permissions:
 
 jobs:
   changes:
+    name: Detect Changed Lambda Functions
+
     runs-on: ubuntu-latest
 
     outputs:
@@ -39,11 +41,13 @@ jobs:
               - apps/lakehouse/lambda/Dockerfile
               - apps/lakehouse/lambda/ingest-binance-trades/**
 
-  deploy:
-    needs: changes
-    if: needs.changes.outputs.functions != '[]'
+  build-and-push-docker-images:
+    name: Build and Push Docker Images
 
     runs-on: ubuntu-latest
+
+    needs: changes
+    if: needs.changes.outputs.functions != '[]'
 
     strategy:
       fail-fast: false
@@ -86,3 +90,11 @@ jobs:
           labels: ${{ steps.image-metadata.outputs.labels }}
           cache-from: type=gha,scope=lambda-${{ matrix.function }}
           cache-to: type=gha,mode=max,scope=lambda-${{ matrix.function }}
+  
+  terraform:
+    name: Terraform Plan and Apply
+
+    needs: build-and-push-docker-images
+    if: ${{ !failure() && !cancelled() }}
+    uses: ./.github/workflows/terraform-plan-and-apply.yml
+    secrets: inherit
