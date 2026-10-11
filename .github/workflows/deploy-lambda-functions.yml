@@ -8,9 +8,8 @@ on:
       - .github/workflows/deploy-lambda-functions.yml
       - pyproject.toml
       - uv.lock
-      - src/ingestion/pyproject.toml
-      - src/ingestion/pipelines/**
-      - src/ingestion/lambda/**
+      - apps/lakehouse/ingestion/**
+      - apps/lakehouse/lambda/**
 
 permissions:
   contents: read
@@ -32,13 +31,13 @@ jobs:
         id: changes
         with:
           filters: |
-            ingest_binance_trades:
+            ingest-binance-trades:
               - .github/workflows/deploy-lambda-functions.yml
               - pyproject.toml
               - uv.lock
-              - src/ingestion/pyproject.toml
-              - src/ingestion/pipelines/**
-              - src/ingestion/lambda/**
+              - apps/lakehouse/ingestion/**
+              - apps/lakehouse/lambda/Dockerfile
+              - apps/lakehouse/lambda/ingest-binance-trades/**
 
   deploy:
     needs: changes
@@ -65,18 +64,11 @@ jobs:
         id: ecr-login
         uses: aws-actions/amazon-ecr-login@v2
       
-      - name: Derive ECR image name
-        id: image-name
-        env:
-          FUNCTION_NAME: ${{ matrix.function }}
-        run: |
-          echo "name=${FUNCTION_NAME//_/-}" >> "$GITHUB_OUTPUT"
-
       - name: Extract image metadata
         id: image-metadata
         uses: docker/metadata-action@v6
         with:
-          images: ${{ steps.ecr-login.outputs.registry }}/investments-data-platform/lambda-${{ steps.image-name.outputs.name }}
+          images: ${{ steps.ecr-login.outputs.registry }}/investments-data-platform/lambda-${{ matrix.function }}
           tags: |
             type=sha
             type=raw,value=latest
@@ -84,9 +76,9 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v7
         with:
-          file: src/ingestion/lambda/Dockerfile
+          file: apps/lakehouse/lambda/Dockerfile
           build-args: |
-            LAMBDA_FUNCTION_DIR=src/ingestion/lambda/${{ matrix.function }}
+            LAMBDA_FUNCTION_DIR=apps/lakehouse/lambda/${{ matrix.function }}
           push: true
           provenance: false
           sbom: false

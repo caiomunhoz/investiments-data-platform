@@ -665,7 +665,7 @@ wheels = [
 [[package]]
 name = "ingestion"
 version = "0.1.0"
-source = { editable = "src/ingestion" }
+source = { editable = "apps/lakehouse/ingestion" }
 dependencies = [
     { name = "cryptography" },
     { name = "dlt", extra = ["filesystem"] },

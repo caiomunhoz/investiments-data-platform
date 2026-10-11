@@ -10,7 +10,7 @@ RUN --mount=from=uv,source=/uv,target=/bin/uv \
     --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    --mount=type=bind,source=src/ingestion/pyproject.toml,target=src/ingestion/pyproject.toml \
+    --mount=type=bind,source=apps/lakehouse/ingestion/pyproject.toml,target=apps/lakehouse/ingestion/pyproject.toml \
     uv export --frozen --package ingestion --no-emit-workspace --no-dev --no-editable -o requirements.txt && \
     uv pip install -r requirements.txt --target "${LAMBDA_TASK_ROOT}"
 
@@ -18,8 +18,9 @@ RUN --mount=from=uv,source=/uv,target=/bin/uv \
     --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    --mount=type=bind,source=src/ingestion/pyproject.toml,target=src/ingestion/pyproject.toml \
-    --mount=type=bind,source=src/ingestion/pipelines,target=src/ingestion/pipelines \
+    --mount=type=bind,source=apps/lakehouse/ingestion/pyproject.toml,target=apps/lakehouse/ingestion/pyproject.toml \
+    --mount=type=bind,source=apps/lakehouse/ingestion/src,target=apps/lakehouse/ingestion/src \
+    --mount=type=bind,source=apps/lakehouse/ingestion/.dlt,target=apps/lakehouse/ingestion/.dlt \
     uv export --frozen --package ingestion --no-dev --no-editable -o requirements.txt && \
     uv pip install -r requirements.txt --target "${LAMBDA_TASK_ROOT}"
 
@@ -29,6 +30,5 @@ ARG LAMBDA_FUNCTION_DIR
 
 COPY --from=builder ${LAMBDA_TASK_ROOT} ${LAMBDA_TASK_ROOT}
 COPY ./${LAMBDA_FUNCTION_DIR}/lambda_function.py ${LAMBDA_TASK_ROOT}/lambda_function.py
-COPY ./src/ingestion/pipelines/.dlt ${LAMBDA_TASK_ROOT}/.dlt
 
 CMD ["lambda_function.lambda_handler"]
