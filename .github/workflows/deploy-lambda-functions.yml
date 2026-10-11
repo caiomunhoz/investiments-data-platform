@@ -1,0 +1,96 @@
+name: Deploy Lambda Functions
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/deploy-lambda-functions.yml
+      - pyproject.toml
+      - uv.lock
+      - src/ingestion/pyproject.toml
+      - src/ingestion/pipelines/**
+      - src/ingestion/lambda/**
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+
+    outputs:
+      functions: ${{ steps.changes.outputs.changes }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Detect changed functions
+        uses: dorny/paths-filter@v4
+        id: changes
+        with:
+          filters: |
+            ingest_binance_trades:
+              - .github/workflows/deploy-lambda-functions.yml
+              - pyproject.toml
+              - uv.lock
+              - src/ingestion/pyproject.toml
+              - src/ingestion/pipelines/**
+              - src/ingestion/lambda/**
+
+  deploy:
+    needs: changes
+    if: needs.changes.outputs.functions != '[]'
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        function: ${{ fromJSON(needs.changes.outputs.functions) }}
+  
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-region: ca-central-1
+          role-to-assume: ${{ secrets.AWS_ECR_PUSH_ROLE_ARN}} #TODO: change role
+
+      - name: Log in to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+      
+      - name: Derive ECR image name
+        id: image-name
+        env:
+          FUNCTION_NAME: ${{ matrix.function }}
+        run: |
+          echo "name=${FUNCTION_NAME//_/-}" >> "$GITHUB_OUTPUT"
+
+      - name: Extract image metadata
+        id: image-metadata
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ steps.ecr-login.outputs.registry }}/investiments-data-platform/lambda-${{ steps.image-name.outputs.name }}
+          tags: |
+            type=sha
+            type=raw,value=latest
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v7
+        with:
+          file: src/ingestion/lambda/Dockerfile
+          build-args: |
+            LAMBDA_FUNCTION_DIR=src/ingestion/lambda/${{ matrix.function }}
+          push: true
+          provenance: false
+          sbom: false
+          tags: ${{ steps.image-metadata.outputs.tags }}
+          labels: ${{ steps.image-metadata.outputs.labels }}
+          cache-from: type=gha,scope=lambda-${{ matrix.function }}
+          cache-to: type=gha,mode=max,scope=lambda-${{ matrix.function }}
