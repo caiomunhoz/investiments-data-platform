@@ -25,7 +25,6 @@ data "aws_iam_policy_document" "ecr_push_policy" {
   statement {
     effect = "Allow"
     actions = [
-      "ecr:GetAuthorizationToken",
       "ecr:BatchCheckLayerAvailability",
       "ecr:PutImage",
       "ecr:InitiateLayerUpload",
@@ -34,12 +33,18 @@ data "aws_iam_policy_document" "ecr_push_policy" {
     ]
     resources = [aws_ecr_repository.lambda_ingest_binance_trades.arn]
   }
+
+  statement {
+    effect    = "Allow"
+    actions   = ["ecr:GetAuthorizationToken"]
+    resources = ["*"]
+  }
 }
 
 data "aws_iam_policy_document" "terraform_ci_policy" { # TODO: Restrict actions and resources for Terraform CI role
   statement {
-    effect = "Allow"
-    actions = ["*"]
+    effect    = "Allow"
+    actions   = ["*"]
     resources = ["*"]
   }
 }
