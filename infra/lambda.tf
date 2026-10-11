@@ -47,18 +47,18 @@ data "aws_iam_policy_document" "lambda_ingestion_policy" {
 }
 
 resource "aws_iam_role" "lambda_ingestion_role" {
-  name               = "InvestimentsDataPlatformLambdaIngestionRole"
+  name               = "investmentsDataPlatformLambdaIngestionRole"
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
 }
 
 resource "aws_iam_role_policy" "lambda_ingestion_role_policy" {
-  name   = "InvestimentsDataPlatformLambdaIngestionPolicy"
+  name   = "investmentsDataPlatformLambdaIngestionPolicy"
   role   = aws_iam_role.lambda_ingestion_role.id
   policy = data.aws_iam_policy_document.lambda_ingestion_policy.json
 }
 
 resource "aws_lambda_function" "ingest_binance_trades_function" {
-  function_name = "investiments-data-platform-ingest-binance-trades"
+  function_name = "investments-data-platform-ingest-binance-trades"
   package_type  = "Image"
   timeout       = 60
   image_uri     = "${aws_ecr_repository.lambda_ingest_binance_trades.repository_url}:${var.ingest_binance_trades_image_tag}"

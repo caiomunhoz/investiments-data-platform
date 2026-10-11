@@ -1,5 +1,5 @@
 [destination.filesystem]
-bucket_url = "s3://investiments-lakehouse/landing"
+bucket_url = "s3://investments-lakehouse/landing"
 
 [normalize.data_writer]
 disable_compression = true

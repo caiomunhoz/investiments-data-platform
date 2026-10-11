@@ -9,8 +9,8 @@ terraform {
   }
 
   backend "s3" {
-    bucket = "investiments-data-platform-tf-backend"
-    key    = "terraform.tfstate"
+    bucket = "investments-data-platform-terraform-backend"
+    key    = "infra/terraform.tfstate"
     region = "ca-central-1"
   }
 }
@@ -22,7 +22,7 @@ provider "aws" {
   default_tags {
     tags = {
       "managed-by" = "terraform"
-      "project"    = "investiments-data-platform"
+      "project"    = "investments-data-platform"
     }
   }
 }

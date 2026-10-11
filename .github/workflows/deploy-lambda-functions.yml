@@ -76,7 +76,7 @@ jobs:
         id: image-metadata
         uses: docker/metadata-action@v6
         with:
-          images: ${{ steps.ecr-login.outputs.registry }}/investiments-data-platform/lambda-${{ steps.image-name.outputs.name }}
+          images: ${{ steps.ecr-login.outputs.registry }}/investments-data-platform/lambda-${{ steps.image-name.outputs.name }}
           tags: |
             type=sha
             type=raw,value=latest

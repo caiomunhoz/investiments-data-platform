@@ -11,7 +11,7 @@ resolution-markers = [
 [manifest]
 members = [
     "ingestion",
-    "investiments-data-platform",
+    "investments-data-platform",
 ]
 
 [[package]]
@@ -680,7 +680,7 @@ requires-dist = [
 ]
 
 [[package]]
-name = "investiments-data-platform"
+name = "investments-data-platform"
 version = "0.1.0"
 source = { virtual = "." }
 
